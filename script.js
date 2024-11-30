@@ -22,12 +22,12 @@ document.getElementById("appointmentForm").addEventListener("submit", function (
     return;
   }
 
-  // Calcular la hora de finalización de la cita
+  // Calcular la hora de inicio y fin de la nueva cita
   const startTime = new Date(`${date}T${time}`);
   const endTime = new Date(startTime.getTime() + serviceDurations[service] * 60000);
 
-  // Validar si hay conflictos de horario
-  const conflict = appointments.some((appointment) => {
+  // Buscar conflictos de horario
+  const conflictingAppointment = appointments.find((appointment) => {
     const appointmentStart = new Date(appointment.start);
     const appointmentEnd = new Date(appointment.end);
 
@@ -37,8 +37,17 @@ document.getElementById("appointmentForm").addEventListener("submit", function (
     );
   });
 
-  if (conflict) {
-    alert("El estilista está ocupado en el horario seleccionado. Por favor, elige otro horario.");
+  if (conflictingAppointment) {
+    // Calcular disponibilidad antes y después del conflicto
+    const conflictEnd = new Date(conflictingAppointment.end);
+    const conflictStart = new Date(conflictingAppointment.start);
+    const availableBefore = new Date(conflictStart.getTime() - serviceDurations[service] * 60000);
+    const availableAfter = new Date(conflictEnd.getTime());
+
+    alert(
+      `El estilista está ocupado en el horario seleccionado (${conflictingAppointment.start.slice(11, 16)} a ${conflictingAppointment.end.slice(11, 16)}). ` +
+      `Horarios disponibles:\n- Antes: ${availableBefore.toTimeString().slice(0, 5)}\n- Después: ${availableAfter.toTimeString().slice(0, 5)}`
+    );
     return;
   }
 
@@ -57,5 +66,3 @@ document.getElementById("appointmentForm").addEventListener("submit", function (
   // Resetear el formulario
   document.getElementById("appointmentForm").reset();
 });
-
-  
